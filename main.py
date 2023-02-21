@@ -274,6 +274,8 @@ if __name__ == "__main__":
             run1.passw = run1.passw = run1.passw.get()
         if run1.user != os.getlogin():
             run1.user = run1.user.get()
+        run1.reta = bool(run1.reta.get())
+
         run1.tod = dentry_tod.get_date()
         run1.fromd = dentry_fromd.get_date()
         db_ugyfel(run1, root, pb)
