@@ -8,12 +8,9 @@ from datetime import datetime, date
 from tkinter import ttk
 from tkcalendar import *
 import re
-import time
 
 
 def db_ugyfel(run, frame, pb):
-    pwstr = str(run.passw)
-    # pwstr = "Tr3asury_4929_01"
 
     # Thread nélkül nem várja meg a python az sql-t, visszatér üresen. Tippem hogy azért, mert ezer évig fut az sql.
     thread_equ = Thread(target=lekerd_equ, args=(run,))
@@ -95,8 +92,16 @@ def lekerd_ugyfel(run):
     except cx_Oracle.DatabaseError as e:
         raise
     # print(len(equ) // 1000)
+    # Az adattárház db-je a query-ket csak ezresével fogadja
+    # ezért nekem itt szét kell darabolnom az equation azonosítókat, hogy később az sql-be be lehessen illeszteni ezresével
+    # Gyakorlatilag ugyanezt csináltuk eddig lépésről lépésre, csak kézzel
+
     bind_tb_equ = []
+
     rows = len(equ) // 1000 + 1
+    # Megcsinálja üresen a változót amibe később az azonosítók kerülnek, pont akkorára amekkora kelleni fog
+    # (ahányszor 1000 annyi széles, és 1000 mély tömbbe gyömöszköli őket. Például ha 1519 db azonosító van, az 2 széles
+    # lesz, egy 1000 hosszú és egy 519 hosszú oszloppal.
 
     for i in range(rows):
         col = []
@@ -116,18 +121,19 @@ def lekerd_ugyfel(run):
         if i == len(equ) // 1000:
             for j in range(len(equ) % 1000):
                 egy_equ = equ[j + i * 1000]
-                bind_tb_equ[i][j] = egy_equ[1:-1]
+                bind_tb_equ[i][j] = egy_equ[1:-1] #Alapból zárójelek (idézőjelek?) közt vannak az értékek, azt most eldobjuk
                 if j != len(equ) % 1000 - 1:
                     tomb_equ[i] = tomb_equ[i] + ", "
         else:
             for j in range(1000):
                 tomb_equ[i] = tomb_equ[i] + equ[j + i * 1000]
                 egy_equ = equ[j + i * 1000]
-                bind_tb_equ[i][j] = egy_equ[1:-1]
+                bind_tb_equ[i][j] = egy_equ[1:-1] #Alapból zárójelek (idézőjelek?) közt vannak az értékek, azt most eldobjuk
                 if j != 1000 - 1:
                     tomb_equ[i] = tomb_equ[i] + ", "
 
-    # timestampelt (csak napra állíottam egyelőre) excelt nyit
+    run.stamp = timestamp()
+    # timestampelt excelt nyit
     # külön kimentem
     wugyf = run.hova + 'prod_ugyfeltabla_' + run.stamp + '.xlsx'
     workbook = xlsxwriter.Workbook(wugyf, {'constant_memory': True, 'default_date_format': 'yyyy/mm/dd'})
@@ -136,7 +142,7 @@ def lekerd_ugyfel(run):
         with open(run.file_sql + 'Ugyfeltabla.sql', 'r') as sql_file:
             sql_beolvasva = sql_file.read()
 
-        cursor.execute("begin ms_as_sec_audit.set_reason('scriptelt P&L riport futtatása'); end;")
+        cursor.execute("begin ms_as_sec_audit.set_reason('Scriptelt Sales riport futtatása'); end;")
         db.commit()
         print("Audit beírás rendben")
 
@@ -183,6 +189,7 @@ def lekerdezes(run):
 
     # timestampelt (perc a legkisebb érték) excelt nyit
     # külön kimentem, így később is rendelkezésre áll, hogy melyik fájl tartozik a munkamenethez
+    run.stamp = timestamp()
     wexcel = run.hova + 'prod_transactions_' + run.stamp + '.xlsx'
     workbook = xlsxwriter.Workbook(wexcel, {'constant_memory': True, 'default_date_format': 'yyyy/mm/dd'})
     tranz = workbook.add_worksheet()
@@ -215,6 +222,8 @@ if __name__ == "__main__":
     root.title("Excel riportok v1.2")
     root.geometry("720x480")
 
+    # A létrejövő paraméterhalmazunk pár alapértelmezett értéke: 2023.01.01 mint kezdő lekérdezés dátum, a mai nap
+    # mint végdátum, és a C:-n az sql és a Riportok mappa mint alapértelmezett célok
     class Submitting:
         def __init__(self, passw=StringVar(), user=StringVar(), fromd=date(2023, 1, 1), tod=datetime.today(),
                      reta=IntVar(), file_sql=None, hova=None):
@@ -247,6 +256,8 @@ if __name__ == "__main__":
     user_input.insert(0, os.getlogin())
     user_input.grid(row=2, column=1)
 
+    # Amennyiben kapunk robotot a programhoz, plain text helyett valami egyszerű, visszafejthető kódként tárolhatná
+    # a jelszót
     pass_input = Entry(root, show="*", textvariable=run1.passw)
     pass_input.insert(0, "Tr3asury_4929_02")
     pass_input.grid(row=3, column=1)
