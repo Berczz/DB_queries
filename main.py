@@ -8,6 +8,15 @@ from datetime import datetime, date
 from tkinter import ttk
 from tkcalendar import *
 import re
+import zlib
+from base64 import urlsafe_b64encode as b64e, urlsafe_b64decode as b64d
+
+# Szerintem hálózaton belül nincs különösebb jelentősége a jelszó elrejtésének, de így nem plaint text-ben van tárolva,
+# ettől jobban alszom, és ez a lényeg.
+
+
+def unobscure(obscured: bytes) -> bytes:
+    return zlib.decompress(b64d(obscured))
 
 
 def db_ugyfel(run, frame, pb):
@@ -48,7 +57,7 @@ def lekerd_equ(run):
     global equ
     equ = []
     # Csatlakozás az adatbázishoz, hibát dob ha rossz a jelszó
-    dsn_tns = cx_Oracle.makedsn("egyikadatbazis", 1521, service_name="khb.hu")
+    dsn_tns = cx_Oracle.makedsn("prac-scan-bar.khb.hu", 1521, service_name="POLTP_APP.khb.hu")
     try:
         db = cx_Oracle.connect(user=run.user, password=run.passw, dsn=dsn_tns)
     except cx_Oracle.DatabaseError as e:
@@ -86,7 +95,7 @@ def lekerd_equ(run):
 
 def lekerd_ugyfel(run):
     # Csatlakozás az adatbázishoz, hibát dob ha rossz a jelszó
-    dsn_tns = cx_Oracle.makedsn("masikadatbazis", 1521, service_name="khb.hu")
+    dsn_tns = cx_Oracle.makedsn("pdw-bar.khb.hu", 1521, service_name="pdw.khb.hu")
     try:
         db = cx_Oracle.connect(user=run.user, password=run.passw, dsn=dsn_tns)
     except cx_Oracle.DatabaseError as e:
@@ -178,7 +187,7 @@ def timestamp():
 
 def lekerdezes(run):
     # Csatlakozás az adatbázishoz, hibát dob ha rossz a jelszó
-    dsn_tns = cx_Oracle.makedsn("egyikadatbazis", 1521, service_name="khb.hu")
+    dsn_tns = cx_Oracle.makedsn("prac-scan-bar.khb.hu", 1521, service_name="POLTP_APP.khb.hu")
     try:
         db = cx_Oracle.connect(user=run.user, password=run.passw, dsn=dsn_tns)
     except cx_Oracle.DatabaseError as e:
@@ -259,7 +268,7 @@ if __name__ == "__main__":
     # Amennyiben kapunk robotot a programhoz, plain text helyett valami egyszerű, visszafejthető kódként tárolhatná
     # a jelszót
     pass_input = Entry(root, show="*", textvariable=run1.passw)
-    pass_input.insert(0, "mypassword")
+    pass_input.insert(0, unobscure(b'obscureolvaajelszavam').decode())
     pass_input.grid(row=3, column=1)
 
     reta_checkb = Checkbutton(root, text="Csak RETA-s ügyletek kellenek?", variable=run1.reta, onvalue=1, offvalue=0, width=40)
@@ -281,7 +290,7 @@ if __name__ == "__main__":
     pb.grid(row=6, column=1, pady=20, padx=55)
 
     def gombnyomas():
-        if run1.passw != "mypassword":
+        if run1.passw != unobscure(b'obscureolvaajelszavam').decode():
             run1.passw = run1.passw = run1.passw.get()
         if run1.user != os.getlogin():
             run1.user = run1.user.get()
