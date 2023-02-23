@@ -48,7 +48,7 @@ def lekerd_equ(run):
     global equ
     equ = []
     # Csatlakozás az adatbázishoz, hibát dob ha rossz a jelszó
-    dsn_tns = cx_Oracle.makedsn("prac-scan-bar.khb.hu", 1521, service_name="POLTP_APP.khb.hu")
+    dsn_tns = cx_Oracle.makedsn("egyikadatbazis", 1521, service_name="khb.hu")
     try:
         db = cx_Oracle.connect(user=run.user, password=run.passw, dsn=dsn_tns)
     except cx_Oracle.DatabaseError as e:
@@ -86,7 +86,7 @@ def lekerd_equ(run):
 
 def lekerd_ugyfel(run):
     # Csatlakozás az adatbázishoz, hibát dob ha rossz a jelszó
-    dsn_tns = cx_Oracle.makedsn("pdw-bar.khb.hu", 1521, service_name="pdw.khb.hu")
+    dsn_tns = cx_Oracle.makedsn("masikadatbazis", 1521, service_name="khb.hu")
     try:
         db = cx_Oracle.connect(user=run.user, password=run.passw, dsn=dsn_tns)
     except cx_Oracle.DatabaseError as e:
@@ -178,7 +178,7 @@ def timestamp():
 
 def lekerdezes(run):
     # Csatlakozás az adatbázishoz, hibát dob ha rossz a jelszó
-    dsn_tns = cx_Oracle.makedsn("prac-scan-bar.khb.hu", 1521, service_name="POLTP_APP.khb.hu")
+    dsn_tns = cx_Oracle.makedsn("egyikadatbazis", 1521, service_name="khb.hu")
     try:
         db = cx_Oracle.connect(user=run.user, password=run.passw, dsn=dsn_tns)
     except cx_Oracle.DatabaseError as e:
