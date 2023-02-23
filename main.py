@@ -259,7 +259,7 @@ if __name__ == "__main__":
     # Amennyiben kapunk robotot a programhoz, plain text helyett valami egyszerű, visszafejthető kódként tárolhatná
     # a jelszót
     pass_input = Entry(root, show="*", textvariable=run1.passw)
-    pass_input.insert(0, "Tr3asury_4929_02")
+    pass_input.insert(0, "mypassword")
     pass_input.grid(row=3, column=1)
 
     reta_checkb = Checkbutton(root, text="Csak RETA-s ügyletek kellenek?", variable=run1.reta, onvalue=1, offvalue=0, width=40)
@@ -281,7 +281,7 @@ if __name__ == "__main__":
     pb.grid(row=6, column=1, pady=20, padx=55)
 
     def gombnyomas():
-        if run1.passw != "Tr3asury_4929_02":
+        if run1.passw != "mypassword":
             run1.passw = run1.passw = run1.passw.get()
         if run1.user != os.getlogin():
             run1.user = run1.user.get()
