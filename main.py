@@ -142,6 +142,8 @@ def lekerd_ugyfel(run):
                     tomb_equ[i] = tomb_equ[i] + ", "
 
     run.stamp = timestamp()
+    fromd_str = run.fromd.strftime("%Y/%m/%d")
+    tod_str = run.tod.strftime("%Y/%m/%d")
     # timestampelt excelt nyit
     # külön kimentem
     wugyf = run.hova + 'prod_ugyfeltabla_' + run.stamp + '.xlsx'
@@ -150,7 +152,8 @@ def lekerd_ugyfel(run):
     with db.cursor() as cursor:
         with open(run.file_sql + 'Ugyfeltabla.sql', 'r') as sql_file:
             sql_beolvasva = sql_file.read()
-
+        
+        print("begin ms_as_sec_audit.set_reason('Scriptelt Sales riport futtatása, felhasználó:" + os.getlogin() + " , futtatás időpontja: " + run.stamp + " ,lekérdezett időszak: " + fromd_str + "-tól " + tod_str + "-ig" + "'); end;")
         cursor.execute("begin ms_as_sec_audit.set_reason('Scriptelt Sales riport futtatása'); end;")
         db.commit()
         print("Audit beírás rendben")
