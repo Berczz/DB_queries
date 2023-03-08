@@ -72,7 +72,7 @@ def lekerd_equ(run):
             sql_mod = re.sub('[\s\S]*?(from)', 'select distinct t.CLIENT_EQUATION \n from', sql_mod, 1)
             sql_mod = re.sub('between to_date\([\s\S]*?,', 'between to_date(:fromd,', sql_mod, 1)
             sql_mod = re.sub('and to_date\([\s\S]*?,', 'and to_date(:tod,', sql_mod, 1)
-        if not run.reta:
+        if not bool(run.reta):
             sql_mod = sql_mod.replace("AND TYPOLOGY LIKE ('%RETA%')", "--AND TYPOLOGY LIKE ('%RETA%')")
         try:
             cursor.execute(sql_mod, {'fromd':fromd_str,'tod':tod_str})
@@ -152,9 +152,9 @@ def lekerd_ugyfel(run):
     with db.cursor() as cursor:
         with open(run.file_sql + 'Ugyfeltabla.sql', 'r') as sql_file:
             sql_beolvasva = sql_file.read()
-        
-        print("begin ms_as_sec_audit.set_reason('Scriptelt Sales riport futtatása, felhasználó:" + os.getlogin() + " , futtatás időpontja: " + run.stamp + " ,lekérdezett időszak: " + fromd_str + "-tól " + tod_str + "-ig" + "'); end;")
-        cursor.execute("begin ms_as_sec_audit.set_reason('Scriptelt Sales riport futtatása'); end;")
+
+
+        cursor.execute("begin ms_as_sec_audit.set_reason('Scriptelt Sales riport futtatása, felhasználó:" + os.getlogin() + " , futtatás időpontja: " + run.stamp + " ,lekérdezett időszak: " + fromd_str + "-tól " + tod_str + "-ig" + "'); end;")
         db.commit()
         print("Audit beírás rendben")
 
@@ -210,7 +210,7 @@ def lekerdezes(run):
             sql_mod = sql_file.read()
             sql_mod = re.sub('between to_date\([\s\S]*?,', 'between to_date(:fromd,', sql_mod, 1)
             sql_mod = re.sub('and to_date\([\s\S]*?,', 'and to_date(:tod,', sql_mod, 1)
-            if not run.reta:
+            if not bool(run.reta):
                 sql_mod = sql_mod.replace("AND TYPOLOGY LIKE ('%RETA%')", "--AND TYPOLOGY LIKE ('%RETA%')")
             try:
                 cursor.execute(sql_mod, {'fromd': fromd_str, 'tod': tod_str})
@@ -231,7 +231,7 @@ if __name__ == "__main__":
 
     # print(timestamp())
     root = Tk()
-    root.title("Excel riportok v1.2")
+    root.title("Excel riportok v1.3")
     root.geometry("720x480")
 
     # A létrejövő paraméterhalmazunk pár alapértelmezett értéke: 2023.01.01 mint kezdő lekérdezés dátum, a mai nap
@@ -271,7 +271,7 @@ if __name__ == "__main__":
     # Amennyiben kapunk robotot a programhoz, plain text helyett valami egyszerű, visszafejthető kódként tárolhatná
     # a jelszót
     pass_input = Entry(root, show="*", textvariable=run1.passw)
-    pass_input.insert(0, unobscure(b'obscureolvaajelszavam').decode())
+    pass_input.insert(0, unobscure(b'eNoLKTJOLC4tqow3sTSyjDcwAgAwHAUm').decode())
     pass_input.grid(row=3, column=1)
 
     reta_checkb = Checkbutton(root, text="Csak RETA-s ügyletek kellenek?", variable=run1.reta, onvalue=1, offvalue=0, width=40)
@@ -293,11 +293,11 @@ if __name__ == "__main__":
     pb.grid(row=6, column=1, pady=20, padx=55)
 
     def gombnyomas():
-        if run1.passw != unobscure(b'obscureolvaajelszavam').decode():
+        if run1.passw != unobscure(b'eNoLKTJOLC4tqow3sTSyjDcwAgAwHAUm').decode():
             run1.passw = run1.passw = run1.passw.get()
         if run1.user != os.getlogin():
             run1.user = run1.user.get()
-        run1.reta = bool(run1.reta.get())
+        run1.reta = run1.reta.get()
 
         run1.tod = dentry_tod.get_date()
         run1.fromd = dentry_fromd.get_date()
