@@ -24,6 +24,14 @@ def db_ugyfel(run, frame, pb):
     # Thread nélkül nem várja meg a python az sql-t, visszatér üresen. Tippem hogy azért, mert ezer évig fut az sql.
     thread_equ = Thread(target=lekerd_equ, args=(run,))
     thread_equ.start()
+    pb.start()
+
+    while thread_equ.is_alive():
+        for i in range(0, 6):
+            pb['value'] = i * 20
+            frame.after(1000, frame.update_idletasks())
+            frame.after(1, frame.update())
+    pb.stop()
 
     thread_equ.join()
 
@@ -38,12 +46,11 @@ def db_ugyfel(run, frame, pb):
         pb.start()
         # Azt hittem ezzel van a baj, közben meg tök jól körbejártam, hogy a GUI miatt crashelt folyton, azért van most
         # egy frame.update is lejjebb
-        # while not os.path.isfile(run.hova + 'prod_ugyfeltabla_' + run.stamp + '.xlsx'):
         while thread_ugyf.is_alive():
             for i in range(0, 6):
                 pb['value'] = i * 20
                 frame.after(1000, frame.update_idletasks())
-            frame.after(100, frame.update())
+                frame.after(1, frame.update())
         #     print(thread_ugyf.is_alive())
         # print(thread_ugyf.is_alive())
         pb.stop()
