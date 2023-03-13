@@ -79,7 +79,7 @@ def lekerd_equ(run):
             sql_mod = re.sub('[\s\S]*?(from)', 'select distinct t.CLIENT_EQUATION \n from', sql_mod, 1)
             sql_mod = re.sub('between to_date\([\s\S]*?,', 'between to_date(:fromd,', sql_mod, 1)
             sql_mod = re.sub('and to_date\([\s\S]*?,', 'and to_date(:tod,', sql_mod, 1)
-        if not bool(run.reta):
+        if not bool(run.reta.get()):
             sql_mod = sql_mod.replace("AND TYPOLOGY LIKE ('%RETA%')", "--AND TYPOLOGY LIKE ('%RETA%')")
         try:
             cursor.execute(sql_mod, {'fromd':fromd_str,'tod':tod_str})
@@ -94,6 +94,7 @@ def lekerd_equ(run):
                 sor = sor[1:-2]
                 equ.append(sor)
 
+        # print(equ)
         # a python list->dictionary->list konvertálással kiszedi az összes ismétlődő elemet
         equ = list(dict.fromkeys(equ))
         # fel kell darabolni
@@ -217,7 +218,7 @@ def lekerdezes(run):
             sql_mod = sql_file.read()
             sql_mod = re.sub('between to_date\([\s\S]*?,', 'between to_date(:fromd,', sql_mod, 1)
             sql_mod = re.sub('and to_date\([\s\S]*?,', 'and to_date(:tod,', sql_mod, 1)
-            if not bool(run.reta):
+            if not bool(run.reta.get()):
                 sql_mod = sql_mod.replace("AND TYPOLOGY LIKE ('%RETA%')", "--AND TYPOLOGY LIKE ('%RETA%')")
             try:
                 cursor.execute(sql_mod, {'fromd': fromd_str, 'tod': tod_str})
@@ -235,7 +236,6 @@ def lekerdezes(run):
 
 
 if __name__ == "__main__":
-
     # print(timestamp())
     root = Tk()
     root.title("Excel riportok v1.3")
@@ -304,7 +304,7 @@ if __name__ == "__main__":
             run1.passw = run1.passw = run1.passw.get()
         if run1.user != os.getlogin():
             run1.user = run1.user.get()
-        run1.reta = run1.reta.get()
+        # run1.reta = run1.reta.get()
 
         run1.tod = dentry_tod.get_date()
         run1.fromd = dentry_fromd.get_date()
